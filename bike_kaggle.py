@@ -7,13 +7,13 @@ import re
 from datetime import datetime
 import test_fun
 import matplotlib.pyplot as plt
+from sklearn import preprocessing
 from sklearn.feature_extraction import DictVectorizer
 
 # print(test_fun.sum(1,2))
-# 导入数据并转化为DataFrame
-data = pd.read_csv('D:/bike_kaggle/train.csv',header= 0,error_bad_lines= False)
+
+# data = pd.read_csv('D:/bike_kaggle/train.csv',header= 0,error_bad_lines= False)
 # print (data.head())
-df = pd.DataFrame(data)
 
 # result = df.describe()
 # result.to_csv('D:/bike_kaggle/t.csv')
@@ -24,43 +24,71 @@ df = pd.DataFrame(data)
 # print (df.head())
 # print (df.info())
 
-# 定义查看是否有空值数据
-def df_isnull(a):
+# 查看是否有空值数据
+def df_isnull(df):
     if df.isnull().any(axis=0).sum():
         print ('有空值')
     else:
         print ('无空值')
 
-df_isnull(df)
+# datetime清洗
+def time_clean(df):
+    # 将datetime切分为日期和时间
+    temp = pd.DatetimeIndex(df['datetime'])
+    df['year'] = temp.year
+    df['date'] = temp.date
+    df['time'] = temp.time
 
-# 将datetime切分为日期和时间
-temp = pd.DatetimeIndex(data['datetime'])
-data['date'] = temp.date
-data['time'] = temp.time
+    # 获取一周中的第几天
+    weekday = [datetime.date(datetime.strptime(time,'%Y-%M-%d')).isoweekday() for time in df['datetime'].str[:10]]
+    df['weekday'] = weekday
 
-# 获取一周中的第几天
-weekday = [datetime.date(datetime.strptime(time,'%Y-%M-%d')).isoweekday() for time in df['datetime'].str[:10]]
-df['weekday'] = weekday
+    # 获取小时数
+    df['hour'] = pd.to_datetime(df.time,format='%H:%M:%S')
+    df['hour'] = pd.Index(df['hour']).hour
 
-# 获取小时数
-df['hour'] = pd.to_datetime(df.time,format='%H:%M:%S')
-data['hour'] = pd.Index(data['hour']).hour
-
-# 删除原始数据的时间
-df = df.drop('datetime',axis= 1)
-# print (df.info())
+    # 删除原始数据的时间
+    df = df.drop('datetime',axis= 1)
+    return df
+    print (df[:10])
 
 # 离散特征值哑变量处理
-# def del_sep(list):
-#     columns_trans = list
-#     df = pd.get_dummies(df,columns=columns_trans)
-#     print(df.info())
+def sep_dummies(df,sep_list):
+    df = pd.get_dummies(df,columns=sep_list)
+    return df
+    # print(df.info())
 
-columns_trans= ['season','weather','weekday','hour']
-df = pd.get_dummies(df,columns=columns_trans)
-print(df.info())
+# 连续特征值标准化处理
+def conti_standard(df,conti_list):
+    for c in conti_list:
+        d = df[c]
+        max = d.max()
+        min = d.min()
+        df[c] = (d-min)/(max-min)
+    return df
+    # print (df)
 
-# 连续型特征值做标准化处理
+# 导入数据并转化为DataFrame
+data = pd.read_csv('C:/Users/leroy/IdeaProjects/bike_kaggle/train.csv',header= 0,error_bad_lines= False)
+df = pd.DataFrame(data)
+df_isnull(df)
+
+df = time_clean(df)
+# print (df[:10])
+
+sep_list= ['season','weather','weekday','hour']
+df = sep_dummies(df,sep_list)
+
+conti_list = ['temp','atemp','humidity','windspeed']
+conti_standard(df,conti_list)
+print (df[:10])
+
+
+# columns_trans= ['season','weather','weekday','hour']
+# df = pd.get_dummies(df,columns=columns_trans)
+# print(df.info())
+
+
 
 
 
