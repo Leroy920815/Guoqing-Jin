@@ -9,7 +9,7 @@ import test_fun
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
 from sklearn.feature_extraction import DictVectorizer
-import matplotlib as plt
+import matplotlib.pyplot as plt
  
 # print(test_fun.sum(1,2))
 
@@ -69,20 +69,48 @@ def conti_standard(df,conti_list):
     return df
     # print (df)
 
-# 导入数据并转化为DataFrame
-data = pd.read_csv('C:/Users/leroy/IdeaProjects/bike_kaggle/train.csv',header= 0,error_bad_lines= False)
-df = pd.DataFrame(data)
+# 导入数据并转化为DataFrame，train和test合并作数据预处理
+data_train = pd.read_csv('D:/Guoqing-Jin/bike_kaggle/train.csv',header= 0,error_bad_lines= False)
+data_test = pd.read_csv('D:/Guoqing-Jin/bike_kaggle/test.csv',header= 0,error_bad_lines= False)
+
+df = pd.DataFrame(data_train).append(pd.DataFrame(data_test))
+
 df_isnull(df)
 
 df = time_clean(df)
 # print (df[:10])
 
+conti_list = ['temp','atemp','humidity','windspeed']
+conti_standard(df,conti_list)
+cols = ['count','year','weekday','hour','season','holiday','workingday','weather','temp','atemp','humidity','windspeed','casual','registered']
+df = df.ix[:,cols]
+df_train = df.iloc[:10886]
+df_test = df.iloc[10886:]
+print (df_train[:10])
+
+# 计算相关系数，查看指标对结果的影响
+correlation = df_train.corr()
+influence_order = correlation['count'].sort_values(ascending = False)
+influence_order_abs = abs(correlation['count'].sort_values(ascending = False))
+
+# 相关性分析热力图
+import seaborn as sns
+f,ax = plt.subplots(figsize =(16,16))
+cmap = sns.cubehelix_palette(light=1,as_cmap=True)
+sns.heatmap(df.corr(),vmax=1,annot=True,center=1,cmap=cmap,linewidths=1,ax=ax)
+
+# 各指标的影响
+x = [1,2,3,4]
+y = df_train['count'].groupby(df_train['season']).sum()
+plt.scatter(x,y)
+# print (x)
+plt.show()
+
 sep_list= ['season','weather','weekday','hour']
 df = sep_dummies(df,sep_list)
 
-conti_list = ['temp','atemp','humidity','windspeed']
-conti_standard(df,conti_list)
-print (df[:10])
+# print (df_test[:10])
+
 
 
 # columns_trans= ['season','weather','weekday','hour']
