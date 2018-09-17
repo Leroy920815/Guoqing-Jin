@@ -9,6 +9,7 @@ import test_fun
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
 from sklearn.feature_extraction import DictVectorizer
+import matplotlib as plt
  
 # print(test_fun.sum(1,2))
 
