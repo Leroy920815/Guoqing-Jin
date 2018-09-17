@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from sklearn import preprocessing
 from sklearn.feature_extraction import DictVectorizer
 
+# 测试
 # print(test_fun.sum(1,2))
 
 # data = pd.read_csv('D:/bike_kaggle/train.csv',header= 0,error_bad_lines= False)
