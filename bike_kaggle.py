@@ -69,6 +69,14 @@ def conti_standard(df,conti_list):
     return df
     # print (df)
 
+def conti_scale(df,conti_list):
+    for c in conti_list:
+        d = df[c]
+        m = np.mean(d)
+        s = np.std(d)
+        df[c] = (d-m)/s
+    return df
+
 # 导入数据并转化为DataFrame，train和test合并作数据预处理
 data_train = pd.read_csv('D:/Guoqing-Jin/bike_kaggle/train.csv',header= 0,error_bad_lines= False)
 data_test = pd.read_csv('D:/Guoqing-Jin/bike_kaggle/test.csv',header= 0,error_bad_lines= False)
@@ -81,7 +89,7 @@ df = time_clean(df)
 # print (df[:10])
 
 conti_list = ['temp','atemp','humidity','windspeed']
-conti_standard(df,conti_list)
+conti_scale(df,conti_list)
 cols = ['count','year','month','weekday','hour','season','holiday','workingday','weather','temp','atemp','humidity','windspeed','casual','registered']
 df = df.ix[:,cols]
 df_train = df.iloc[:10886]
@@ -201,7 +209,10 @@ mlp = MLPRegressor()
 mlp.fit(x_train,y_train)
 mlp_y_predict = mlp.predict(x_test)
 print ('人工神经网络预测准确率为：',r2_score(y_test,mlp_y_predict))
+# print (y_test)
+# y_test.to_csv('D:/Guoqing-Jin/bike_kaggle/result.csv')
 
+# 多元
 
 # columns_trans= ['season','weather','weekday','hour']
 # df = pd.get_dummies(df,columns=columns_trans)
